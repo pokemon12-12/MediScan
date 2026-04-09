@@ -5,7 +5,7 @@ import AuthModel from './components/AuthModel';
 
 //  Navbar 
 
-const Navbar = ({ onSignIn }) => {
+const Navbar = ({ onSignIn, onRegister, searchEnabled, searchInputRef, hasAccount }) => {
   const [search, setSearch] = useState("");
   const [darkMode, setDarkMode] = useState(false);
 
@@ -44,9 +44,9 @@ const Navbar = ({ onSignIn }) => {
             MS
           </div>
           <div className="d-flex flex-column">
-            <span className="fw-bold">MEDISCAN</span>
-            <small className="text-muted" style={{ fontSize: '0.7rem' }}>
-              India’s Smart Pharmacy
+            <span className="fw-bold">MedBridge</span>
+            <small className="text-muted" style={{ fontSize:'0.7rem' }}>
+              India's Smart Pharmacy
             </small>
           </div>
         </a>
@@ -55,13 +55,15 @@ const Navbar = ({ onSignIn }) => {
         <form onSubmit={handleSearch} className="d-flex mx-lg-auto flex-grow-1 px-4" style={{ maxWidth: '500px' }}>
           <div className="input-group shadow-sm rounded-pill overflow-hidden border">
             <input
+              ref={searchInputRef}
               className="form-control border-0 shadow-none py-2 px-3"
               type="search"
               placeholder="Search medicines, stores, or Ayurveda"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              disabled={!searchEnabled}
             />
-            <button className="btn bg-white border-0 px-3">
+            <button className="btn bg-white border-0 px-3" disabled={!searchEnabled}>
               🔍
             </button>
           </div>
@@ -72,8 +74,7 @@ const Navbar = ({ onSignIn }) => {
         <ul className="navbar-nav ms-auto align-items-center gap-3">
 
           <li className="nav-item" style={{ cursor: "pointer" }}
-          onClick={() => alert("Categories clicked")}
-        >
+          onClick={() => alert("Categories clicked")}>
           <span className="nav-link fw-semibold">Categories</span>
         </li>
 
@@ -93,11 +94,17 @@ const Navbar = ({ onSignIn }) => {
 
           </li>
 
-          {/* 🔐 Sign In */}
+          {/* 🔐 Login | Register */}
           <li className="nav-item">
-            <button onClick={handleSignIn} className="btn btn-success rounded-pill px-4 fw-semibold shadow-sm">
-              Sign In
-            </button>
+            {hasAccount ? (
+              <button onClick={handleSignIn} className="btn btn-success rounded-pill px-3 py-2 fw-semibold shadow-sm">
+                Login
+              </button>
+            ) : (
+              <button onClick={onRegister} className="btn btn-outline-success rounded-pill px-3 py-2 fw-semibold shadow-sm">
+                Login | Register
+              </button>
+            )}
           </li>
 
           {/* 🌙 Dark Mode */}
@@ -117,7 +124,7 @@ const Navbar = ({ onSignIn }) => {
 };
 
 // --- 2. Hero Section ---
-const Hero = () => {
+const Hero = ({ onEnableSearch }) => {
   const [fileName, setFileName] = useState("");
   const fileInputRef = useRef(null);
 
@@ -135,11 +142,21 @@ const Hero = () => {
         <div className="row align-items-center">
           <div className="col-lg-7">
             <small className="text-uppercase fw-bold text-muted letter-spacing-1">MEDISCAN MVP</small>
-            <h1 className="display-4 fw-bold text-dark mt-3 mb-4">Stay Safe. Stay Healthy.<br />Your Medicines, Simplified.</h1>
+            <h1 className="display-4 fw-bold text-dark mt-3 mb-4">Don’t search store to store for medicines<br/>MedBridge finds the nearest one for you</h1>
             <p className="lead text-secondary mb-5">Scan prescriptions, discover Ayurvedic alternatives, and locate nearby medical stores with live availability.</p>
-            <div className="d-flex gap-3">
-              <button className="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow">UPLOAD PRESCRIPTION</button>
-              <button className="btn btn-outline-dark rounded-pill px-4 py-2 fw-bold bg-white shadow-sm">SEARCH MEDICINE</button>
+          <div className="d-flex gap-3">
+            <button
+              className="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              UPLOAD PRESCRIPTION
+            </button>
+            <button
+              className="btn btn-outline-dark rounded-pill px-4 py-2 fw-bold bg-white shadow-sm"
+              onClick={onEnableSearch}
+            >
+              SEARCH MEDICINE
+            </button>
             </div>
             <button className="btn btn-link text-dark text-decoration-none fw-semibold mt-4 p-0">🎙️ VOICE SEARCH</button>
           </div>
@@ -179,77 +196,6 @@ const Hero = () => {
   );
 };
 
-// --- 3. Universal Search ---
-const UniversalSearch = () => (
-  <section className="container my-5 pt-5 text-center">
-    <small className="text-uppercase fw-bold text-muted" style={{ letterSpacing: '2px' }}>Universal Search</small>
-    <h2 className="fw-bold mt-2 mb-4">Search medicines, Ayurveda, and stores</h2>
-    <div className="mx-auto mb-5" style={{ maxWidth: '800px' }}>
-      <div className="input-group shadow-sm rounded-pill overflow-hidden border">
-        <span className="input-group-text bg-white border-0 ps-4">🔍</span>
-        <input type="text" className="form-control border-0 py-3 shadow-none" placeholder="Search medicine, Ayurvedic alternatives, or stores" />
-        <button className="btn bg-white border-0 pe-4 text-secondary">🎙️</button>
-      </div>
-      <p className="small text-muted mt-3">Voice recognition uses the Web Speech API.</p>
-    </div>
-
-    <div className="row g-4">
-      {[
-        { name: "Paracetamol 650mg", alt: "Giloy + Tulsi blend", shop: "HealthHub Pharmacy", phone: "+91 91234 56789", active: true },
-        { name: "Azithromycin 500mg", alt: "None", shop: "CityCare Medical", phone: "+91 98765 43210" },
-        { name: "Metformin 500mg", alt: "Karela + Jamun capsules", shop: "Wellness Point", phone: "+91 99887 77665" }
-      ].map((med, idx) => (
-        <div className="col-md-4" key={idx}>
-          <div className={`card h-100 border-0 shadow-sm rounded-4 p-4 text-start ${med.active ? 'border-top border-4 border-success' : ''}`}>
-            <h6 className="fw-bold mb-1">{med.name}</h6>
-            <p className="small text-muted mb-4">Ayurvedic: <span className="text-success">{med.alt}</span></p>
-            <div className="mt-auto border-top pt-3">
-              <p className="mb-0 fw-semibold small">{med.shop} • 4.6★</p>
-              <p className="text-primary small fw-bold mb-0">{med.phone}</p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
-
-// --- 4. Featured Medicines ---
-const FeaturedMedicines = () => (
-  <section className="container my-5 py-5">
-    <div className="d-flex justify-content-between align-items-end mb-4">
-      <div>
-        <small className="text-uppercase fw-bold text-muted">Featured Medicines</small>
-        <h2 className="fw-bold mt-2">Dummy product cards with pricing</h2>
-      </div>
-      <span className="text-muted small">Image + Price</span>
-    </div>
-    <div className="row g-4">
-      {[
-        { name: "Paracetamol 650mg", cat: "Pain Relief", price: "45", color: "#eef2ff" },
-        { name: "Azithromycin 500mg", cat: "Antibiotic", price: "110", color: "#fef2f2" },
-        { name: "Metformin 500mg", cat: "Diabetes", price: "85", color: "#f0fdf4" }
-      ].map((med, idx) => (
-        <div className="col-md-4" key={idx}>
-          <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-            <div className="p-5 text-center" style={{ backgroundColor: med.color }}>
-              <div className="bg-white rounded-3 shadow-sm mx-auto" style={{ width: '100px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>💊</div>
-            </div>
-            <div className="card-body p-4">
-              <div className="d-flex justify-content-between align-items-start mb-3">
-                <h6 className="fw-bold m-0">{med.name}</h6>
-                <span className="badge rounded-pill bg-light text-dark border fw-normal">{med.cat}</span>
-              </div>
-              <p className="text-muted small mb-0">Retail price</p>
-              <h4 className="fw-bold text-success mb-4">₹{med.price}</h4>
-              <button className="btn btn-outline-dark w-100 rounded-pill fw-bold py-2">ADD TO CART</button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
 
 // --- 5. Ayurvedic Discovery ---
 const AyurvedicDiscovery = () => (
@@ -285,117 +231,46 @@ const AyurvedicDiscovery = () => (
   </section>
 );
 
-// --- 6. Quick Categories ---
-const QuickCategories = () => (
-  <section className="container my-5">
-    <div className="d-flex justify-content-between align-items-end mb-4">
-      <div>
-        <small className="text-uppercase fw-bold text-muted">Quick Categories</small>
-        <h2 className="fw-bold mt-2">Find medicines by intent</h2>
-      </div>
-      <button className="btn btn-outline-secondary rounded-pill btn-sm px-3 mb-2">Tap to explore</button>
-    </div>
-    <div className="row g-3">
-      {["Fever", "Cold & Cough", "Pain Relief", "Diabetes", "BP", "Ayurvedic"].map((cat, idx) => (
-        <div className="col-md-4" key={idx}>
-          <div className="card border-0 shadow-sm rounded-4 p-3 bg-white">
-            <h6 className="fw-bold mb-1">{cat}</h6>
-            <p className="small text-muted mb-0">{idx === 5 ? "NEW 🌿" : "Quick Care"}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
-
-// --- 7. Nearby Stores ---
-const NearbyStores = () => (
-  <section className="container my-5 pb-5" id="stores">
-    <div className="d-flex justify-content-between align-items-end mb-4">
-      <div>
-        <small className="text-uppercase fw-bold text-muted">Top Nearby Medical Stores</small>
-        <h2 className="fw-bold mt-2">Availability + location intelligence</h2>
-      </div>
-      <span className="text-muted small">Maps ready</span>
-    </div>
-    <div className="d-flex flex-column gap-3">
-      {[
-        { name: "HealthHub Pharmacy", rate: "4.6", dist: "0.8 km", phone: "+91 91234 56789" },
-        { name: "CityCare Medical", rate: "4.4", dist: "1.3 km", phone: "+91 98765 43210" }
-      ].map((store, idx) => (
-        <div className="card border-0 shadow-sm rounded-4 p-4" key={idx}>
-          <div className="d-flex justify-content-between align-items-start">
-            <div>
-              <h5 className="fw-bold mb-1">{store.name}</h5>
-              <p className="text-muted small mb-0">📍 {store.dist} away • 📞 {store.phone}</p>
-            </div>
-            <span className="fw-bold text-warning">⭐ {store.rate}</span>
-          </div>
-          <button className="btn btn-light border w-100 mt-3 rounded-3 fw-bold text-uppercase py-2" style={{ fontSize: '0.75rem' }}>Get Directions</button>
-        </div>
-      ))}
-    </div>
-  </section>
-);
-
-// --- 8. Store Portal (Inventory Upload) ---
-const StorePortal = () => {
-  const fileInputRef = useRef(null);
-  return (
-    <section className="container my-5 py-5 border-top">
-      <div className="row">
-        <div className="col-lg-6">
-          <small className="text-uppercase fw-bold text-muted">Store Inventory Upload</small>
-          <h2 className="fw-bold mt-2 mb-4">Add products & availability</h2>
-          <div className="card border-0 shadow-sm rounded-4 p-4 bg-white">
-            <h6 className="fw-bold mb-3">Upload Product</h6>
-            <div className="mb-3"><input className="form-control bg-light border-0 py-2" placeholder="Product name" /></div>
-            <div className="row g-2 mb-3">
-              <div className="col-6"><input className="form-control bg-light border-0 py-2" placeholder="Price (₹)" /></div>
-              <div className="col-6"><input className="form-control bg-light border-0 py-2" placeholder="Stock quantity" /></div>
-            </div>
-            <div className="border border-dashed rounded-3 p-3 text-center mb-3 bg-light bg-opacity-25" style={{ cursor: 'pointer' }} onClick={() => fileInputRef.current.click()}>
-              <small className="text-muted">Upload product image</small>
-              <input type="file" ref={fileInputRef} className="d-none" />
-            </div>
-            <button className="btn btn-success w-100 rounded-pill fw-bold py-2">SAVE PRODUCT</button>
-          </div>
-        </div>
-        <div className="col-lg-6 mt-4 mt-lg-0">
-          <h5 className="fw-bold mb-3">Availability & Pricing</h5>
-          <div className="list-group list-group-flush shadow-sm rounded-4 overflow-hidden border">
-            {["Paracetamol 650mg - ₹45", "Triphala Powder - ₹210", "Metformin 500mg - ₹85"].map((item, i) => (
-              <div key={i} className="list-group-item d-flex justify-content-between align-items-center py-3">
-                <span className="small fw-semibold">{item}</span>
-                <button className="btn btn-sm btn-outline-danger border-0">✕</button>
-              </div>
-            ))}
-          </div>
-          <button className="btn btn-dark w-100 mt-3 rounded-pill fw-bold">SYNC INVENTORY</button>
-        </div>
-      </div>
-    </section>
-  );
-};
-
 // --- 9. Order + Payments ---
 const OrdersAndPayments = () => (
   <section className="container my-5 py-5 bg-white rounded-4 shadow-sm border p-5">
     <small className="text-uppercase fw-bold text-muted">ORDER + PAYMENTS</small>
     <h2 className="fw-bold mt-2 mb-5">Fast checkout with smart reminders</h2>
     <div className="row g-4">
-      <div className="col-md-4">
-        <h6 className="fw-bold mb-3">Razorpay / Stripe</h6>
-        <p className="text-muted small">Add medicines, choose a store, and lock availability in seconds.</p>
-      </div>
-      <div className="col-md-4">
-        <h6 className="fw-bold mb-3">Secure Payments</h6>
-        <p className="text-muted small">Pay online with UPI, cards, or netbanking with instant receipt generation.</p>
-      </div>
-      <div className="col-md-4">
-        <h6 className="fw-bold mb-3">Order Tracking</h6>
-        <p className="text-muted small">Instant confirmation and follow-up reminders if purchases are missed.</p>
-      </div>
+      {[
+        {
+          title: "Razorpay / Stripe",
+          text: "Add medicines, choose a store, and lock availability in seconds.",
+          img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f6d2.png",
+          alt: "Cart"
+        },
+        {
+          title: "Secure Payments",
+          text: "Pay online with UPI, cards, or netbanking with instant receipt generation.",
+          img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4b3.png",
+          alt: "Card"
+        },
+        {
+          title: "Order Tracking",
+          text: "Instant confirmation and follow-up reminders if purchases are missed.",
+          img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4e6.png",
+          alt: "Package"
+        }
+      ].map((item) => (
+        <div className="col-md-4" key={item.title}>
+          <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <img
+              src={item.img}
+              alt={item.alt}
+              width="56"
+              height="56"
+              className="mb-3"
+            />
+            <h6 className="fw-bold mb-2">{item.title}</h6>
+            <p className="text-muted small mb-0">{item.text}</p>
+          </div>
+        </div>
+      ))}
     </div>
   </section>
 );
@@ -403,19 +278,48 @@ const OrdersAndPayments = () => (
 // --- Main App Component ---
 function App() {
   const [showAuth, setShowAuth] = useState(false);
+  const [searchEnabled, setSearchEnabled] = useState(false);
+  const searchInputRef = useRef(null);
+  const [authMode, setAuthMode] = useState("register");
+  const [hasAccount, setHasAccount] = useState(
+    localStorage.getItem("mediscan_has_account") === "true"
+  );
+
+  const handleEnableSearch = () => {
+    setSearchEnabled(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
+  };
   return (
     
     <div className="min-vh-100" style={{ backgroundColor: '#fdfdfd' }}>
-      <Navbar onSignIn={() => setShowAuth(true)} />
-      {showAuth && <AuthModel onClose={() => setShowAuth(false)} />}
+      <Navbar
+        onSignIn={() => {
+          setAuthMode("signin");
+          setShowAuth(true);
+        }}
+        onRegister={() => {
+          setAuthMode("register");
+          setShowAuth(true);
+        }}
+        searchEnabled={searchEnabled}
+        searchInputRef={searchInputRef}
+        hasAccount={hasAccount}
+      />
+      {showAuth && (
+        <AuthModel
+          mode={authMode}
+          onClose={() => setShowAuth(false)}
+          onRegistered={() => {
+            localStorage.setItem("mediscan_has_account", "true");
+            setHasAccount(true);
+          }}
+        />
+      )}
       <main className="pb-5">
-        <Hero />
-        <UniversalSearch />
-        <FeaturedMedicines />
+        <Hero onEnableSearch={handleEnableSearch} />
         <AyurvedicDiscovery />
-        <QuickCategories />
-        <NearbyStores />
-        <StorePortal />
         <OrdersAndPayments />
       </main>
       <footer className="bg-white border-top py-5 text-center">

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 
-const AuthModel = ({ onClose }) => {
+const AuthModel = ({ onClose, mode = "register", onRegistered }) => {
   const [role, setRole] = useState("patient");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [verified, setVerified] = useState(false);
   const [storeForm, setStoreForm] = useState({
     shopName: "",
     email: "",
@@ -23,11 +26,28 @@ const AuthModel = ({ onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (role == "store") {
-      console.log("Register Store:", storeForm);
+    if (mode === "register") {
+      if (role == "store") {
+        console.log("Register Store:", storeForm);
+      } else {
+        console.log("Register Patient:", patientForm);
+      }
+      setOtpSent(true);
     } else {
-      console.log("Login Patient:", patientForm);
+      if (role == "store") {
+        console.log("Sign In Store:", storeForm);
+      } else {
+        console.log("Sign In Patient:", patientForm);
+      }
     }
+  };
+
+  const handleVerifyOtp = (e) => {
+    e.preventDefault();
+    if (!otp.trim()) return;
+    // TODO: Replace with backend OTP verification
+    setVerified(true);
+    if (onRegistered) onRegistered();
   };
 
   return (
@@ -48,14 +68,14 @@ const AuthModel = ({ onClose }) => {
               className={"btn " + (role === "store" ? "btn-success" : "btn-outline-success")}
               onClick={() => setRole("store")}
             >
-              Register as Store
+              {mode === "register" ? "Register as Store" : "Sign In as Store"}
             </button>
             <button
               type="button"
               className={"btn " + (role === "patient" ? "btn-success" : "btn-outline-success")}
               onClick={() => setRole("patient")}
             >
-              Login as Patient
+              {mode === "register" ? "Register as Patient" : "Sign In as Patient"}
             </button>
           </div>
 
@@ -95,8 +115,18 @@ const AuthModel = ({ onClose }) => {
                   required
                 />
               </div>
+              {mode === "register" && (
+                <div className="mb-4">
+                  <label className="form-label fw-semibold">Shop Location (Google Maps)</label>
+                  <input
+                    name="location"
+                    className="form-control"
+                    placeholder="Paste Google Maps link or address"
+                  />
+                </div>
+              )}
               <button type="submit" className="btn btn-success w-100 fw-semibold rounded-pill">
-                Register Store
+                {mode === "register" ? "Register Store" : "Sign In Store"}
               </button>
             </form>
           ) : (
@@ -136,9 +166,33 @@ const AuthModel = ({ onClose }) => {
                 />
               </div>
               <button type="submit" className="btn btn-success w-100 fw-semibold rounded-pill">
-                Login as Patient
+                {mode === "register" ? "Register Patient" : "Sign In Patient"}
               </button>
             </form>
+          )}
+          {mode === "register" && otpSent && !verified && (
+            <form onSubmit={handleVerifyOtp} className="mt-4">
+              <label className="form-label fw-semibold">Enter OTP sent to email</label>
+              <div className="input-group">
+                <input
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  className="form-control"
+                  placeholder="6-digit OTP"
+                />
+                <button type="submit" className="btn btn-outline-success">
+                  Verify
+                </button>
+              </div>
+              <p className="small text-muted mt-2 mb-0">
+                OTP sent to your email. Verify to complete registration.
+              </p>
+            </form>
+          )}
+          {mode === "register" && verified && (
+            <p className="small text-success mt-3 mb-0">
+              Verified successfully. You can now sign in next time.
+            </p>
           )}
         </div>
       </div>
