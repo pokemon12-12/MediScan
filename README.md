@@ -1,18 +1,53 @@
-# React + Vite
+Medicine Prescription Reader & Nearby Medical Shop Locator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A smart healthcare assistance web application that helps users:
 
-Currently, two official plugins are available:
+Read and analyze medicine prescriptions
+Detect medicine names from uploaded prescriptions
+Find nearby medical shops
+Check medicine availability in nearby pharmacies
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built using modern web technologies with a clean and responsive UI.
 
-## React Compiler
+🚀 Features
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+📄 Prescription Reader
 
-Note: This will impact Vite dev & build performances.
+Upload prescription images or documents
+Extract medicine names from prescriptions
+Easy-to-read medicine list output
 
-## Expanding the ESLint configuration
+📍 Nearby Medical Shop Locator
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Detect nearby pharmacies using location services
+Display available medical shops on the basis of location
+Check medicine availability in specific stores
+💊 Medicine Availability
+Search medicines directly
+Verify stock availability in nearby pharmacies
+Faster medicine discovery for users
+🎨 Responsive UI
+
+Mobile-friendly interface
+Clean React-based frontend
+Easy navigation and user experience
+🛠️ Tech Stack
+⚛️ React.js
+🎨 CSS / Tailwind CSS
+📍 Geolocation API
+🔗 REST APIs
+☁️ Node.js & Express (optional backend support)
+🗄️ MongoDB (if database integrated)
+📂 Project Structure
+medicine-prescription-reader/
+│
+├── public/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   ├── App.js
+│   └── index.js
+│
+├── package.json
+└── README.md
